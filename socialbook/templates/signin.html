@@ -26,7 +26,7 @@
                         <b><h1 style="font-size: 1.5rem;color: #FFFFFF;">Social Book</h1></b>
                     </a>
                     <div class="capitalize flex font-semibold hidden lg:block my-2 space-x-3 text-center text-sm">
-                        <a href="signup.html" class="bg-gray-700 px-6 py-3 rounded-md shadow text-white">Register</a>
+                        <a href="/signup" class="bg-gray-700 px-6 py-3 rounded-md shadow text-white">Register</a>
                     </div>
                 </div>
             </div>
@@ -36,19 +36,30 @@
         <div>
             <div class="lg:p-12 max-w-md max-w-xl lg:my-0 my-12 mx-auto p-6 space-y-6">
                 <h1 class="lg:text-3xl text-xl font-semibold mb-6">Sign In</h1>
-                <form action="index.html">
-                    <input type="text" placeholder="Username" class="bg-gray-700 text-white mb-2 shadow-none" style="border: 1px solid #d3d5d8 !important;">
-                    <input type="text" placeholder="***********" class="bg-gray-700 text-white mb-2 shadow-none" style="border: 1px solid #d3d5d8 !important;">
-                    <div class="flex justify-between my-4">
+                
+                <div>
+                
+                    {% for message in messages %}
+                    <h5 style="color: red;">{{message}}</h5>
+                    {% endfor %}
+
+                </div>
+                
+                <form action="" method="POST">
+                    {% csrf_token %}
+
+                    <input type="text" name= "username" placeholder="Username" class="bg-gray-700 text-white mb-2 shadow-none" style="border: 1px solid #d3d5d8 !important;">
+                    <input type="password" name="password" placeholder="Password" class="bg-gray-700 text-white mb-2 shadow-none" style="border: 1px solid #d3d5d8 !important;">
+                    <!-- <div class="flex justify-between my-4">
                         <div class="checkbox">
                             <input type="checkbox" id="chekcbox1" checked>
                             <label for="chekcbox1" style="color: #000000;"><span class="checkbox-icon" ></span>Remember Me</label>
                         </div>
                         <a href="#" style="color: #000000;" class="text-gray-400">Forgot Your Password?</a>
-                    </div>
+                    </div> -->
                     <button type="submit" style="border: 4px solid black; padding: 10px 14px;font-weight: bold; display: inline-block; background-color: beige; color: black; cursor: pointer; transition: all 0.3s ease;">Sign in</button>
                     <div class="text-center mt-5 space-x-2">
-                        <p class="text-base" style="color: #000000;">Not registered? <a href="form-register.html" class="text-gray-400"style="color: #000000;">Create an account</a></p>
+                        <p class="text-base" style="color: #000000;">Not registered? <a href="/signup" class="text-gray-400"style="color: #000000;">Create an account</a></p>
                     </div>
                 </form>
             </div>
