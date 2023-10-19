@@ -28,3 +28,11 @@ class Post(models.Model):
 
     def __str__(self):
         return self.user
+    
+class LikePost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    # post_id = models.CharField(max_length=500)
+    username = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.username
