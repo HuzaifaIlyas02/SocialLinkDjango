@@ -30,7 +30,7 @@ Before you begin, ensure you have the following prerequisites installed:
    ```sh
     cd SocialLinkDjango\socialbook
 
-3. **Run Locally:**
+3. **Run Development Server:**
 ```sh
     python manage.py runserver
 
