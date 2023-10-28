@@ -12,5 +12,7 @@ urlpatterns = [
     path('profile/<str:pk>', views.profile, name = 'profile'),
     path('follow', views.follow, name = 'follow'),
     path('search', views.search, name = 'search'),
+    path('confirm/<str:uidb64>/<str:token>/', views.confirm_email, name='confirm_email'),
+
 
 ]

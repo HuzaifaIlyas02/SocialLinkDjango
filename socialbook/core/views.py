@@ -6,13 +6,25 @@ from .models import Profile, Post, LikePost, FollowersCount
 from django.contrib.auth.decorators import login_required
 from itertools import chain
 import random
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str  # Update this import
+from django.contrib.auth.tokens import default_token_generator
+from django.urls import reverse
+
+
 
 # Create your views here
 
 @login_required(login_url='signin')
 def index(request):
-    user_object = User.objects.get(username=request.user.username)
-    user_profile = Profile.objects.get(user=user_object)
+    # First, get the user instance
+    user_instance = request.user
+
+# Create a Profile object associated with the user
+# Make sure to set the user field to the user instance
+    user_profile, created = Profile.objects.get_or_create(user=user_instance)
+    print("user profile", user_profile)
     
     user_following_list = []
     feed = []
@@ -50,7 +62,7 @@ def index(request):
         username_profile.append(users.id)
     
     for ids in username_profile:
-        profile_lists = Profile.objects.filter(id_user=ids)
+        profile_lists = Profile.objects.filter(user_id=ids)
         username_profile_list.append(profile_lists)
 
     suggestions_username_profile_list = list(chain(*username_profile_list))
@@ -213,24 +225,48 @@ def signup(request):
                 return redirect('signup')
             else:
                 user = User.objects.create_user(username=username, email=email, password=password)
+                user.is_active = False  # User will not be active until they confirm their email
                 user.save()
 
-                #log user in and redirect to setting page
-                user_login = auth.authenticate(username=username,password=password)
-                auth.login(request, user_login)
+                send_confirmation_email(request, email, username)  # Send confirmation email
 
-                #create a Profile object for the new user
-                user_model = User.objects.get(username=username)
-                new_profile = Profile.objects.create(user=user_model, id_user= user_model.id)
-                new_profile.save()
-                return redirect('settings')
+                messages.info(request, 'Please check your email to confirm your registration.')
+                return redirect('signup')
         else:
             messages.info(request, 'Password Not Matching')
             return redirect('signup')
-
     else:
         return render(request, 'signup.html')
-    
+
+def send_confirmation_email(request, user_email, username):
+    user = User.objects.get(email=user_email)
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    confirmation_url = request.build_absolute_uri(reverse('confirm_email', kwargs={'uidb64': uid, 'token': token}))
+    subject = "Welcome to our platform!"
+    message = f'Hi {username},\n\nThanks for signing up. To activate your account, click the link below:\n\n{confirmation_url}'
+    from_email = 'huzaifailyas1122@gmail.com'  # Replace with your sending email
+    recipient_list = [user_email]
+    send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
+# Function to confirm email and activate the user
+def confirm_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            messages.success(request, 'Your account has been activated. You can now sign in.')
+            return redirect('signin')  # Redirect to the user's profile page
+        else:
+            messages.error(request, 'Invalid confirmation link. Please try again.')
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+
+    # Redirect the user to the sign-in page (or any other appropriate page)
+    return redirect('signin')
 
 def signin(request):
     
